@@ -42,6 +42,12 @@ $api->version('v1', [
         // 话题详情
         $api->get('topics/{topic}', 'TopicsController@show')
             ->name('api.topics.show');
+        // 返回某个话题回复所有列表
+        $api->get('topics/{topic}/replies', 'RepliesController@index')
+            ->name('api.topics.replies.index');
+        // 返回某个人的所有回复列表
+        $api->get('users/{user}/replies', 'RepliesController@userIndex')
+            ->name('api.users.replies.index');
 
 
         // 需要 token 验证的接口
