@@ -9,11 +9,8 @@ return [
         'strategy' => \Overtrue\EasySms\Strategies\OrderStrategy::class,
 
         // 默认可用的发送网关
-//        'gateways' => [
-//            'yunpian',
-//        ],
         'gateways' => [
-            'qcloud',
+            'yunpian',
         ],
     ],
     // 可用的网关配置
@@ -21,12 +18,8 @@ return [
         'errorlog' => [
             'file' => '/tmp/easy-sms.log',
         ],
-//        'yunpian' => [
-//            'api_key' => env('YUNPIAN_API_KEY'),
-//        ],
-        'qcloud' => [
-            'sdk_app_id' => env('QCLOUD_SDK_APP_ID'), // SDK APP ID
-            'app_key' => env('QCLOUD_API_KEY'), // APP KEY
+        'yunpian' => [
+            'api_key' => env('YUNPIAN_API_KEY'),
         ],
-    ],
+    ]
 ];

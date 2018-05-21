@@ -26,6 +26,7 @@ class JpushServiceProvider extends ServiceProvider
     {
         $this->app->singleton(Client::class, function ($app) {
             return new Client(config('jpush'));
+//            return new Client(config('jpush.key'), config('jpush.secret'));
         });
 
         $this->app->alias(Client::class, 'jpush');

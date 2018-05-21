@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Api;
 //use Overtrue\EasySms\EasySms;
 use App\Http\Requests\Api\VerificationCodeRequest;
 use Qcloud\Sms\SmsSingleSender;
-
+use Illuminate\Support\Str;
 
 class VerificationCodesController extends Controller
 {
@@ -18,7 +18,7 @@ class VerificationCodesController extends Controller
             return $this->response->error('图片验证码已失效', 422);
         }
 
-        if (!hash_equals($captchaData['code'], strtoupper($request->captcha_code))) {
+        if (!hash_equals(Str::lower($captchaData['code']), Str::lower($request->captcha_code))) {
             // 验证错误就清除缓存
             \Cache::forget($request->captcha_key);
             return $this->response->errorUnauthorized('验证码错误');

@@ -12,40 +12,64 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-//
-//Route::middleware('auth:api')->get('/user', function (Request $request) {
-//    return $request->user();
-//});
 
 $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', [
     'namespace' => 'App\Http\Controllers\Api',
-    'middleware' => ['serializer:array', 'bindings','change-locale']
-], function($api) {
+    'middleware' => ['serializer:array', 'bindings', 'change-locale']
+], function ($api) {
 
     $api->group([
         'middleware' => 'api.throttle',
         'limit' => config('api.rate_limits.sign.limit'),
         'expires' => config('api.rate_limits.sign.expires'),
-    ], function($api) {
+    ], function ($api) {
+        // 短信验证码
+        $api->post('verificationCodes', 'VerificationCodesController@store')
+            ->name('api.verificationCodes.store');
+        // 用户注册
+        $api->post('users', 'UsersController@store')
+            ->name('api.users.store');
+        // 图片验证码
+        $api->post('captchas', 'CaptchasController@store')
+            ->name('api.captchas.store');
+
+        // 第三方登录
+        $api->post('socials/{social_type}/authorizations', 'AuthorizationsController@socialStore')
+            ->name('api.socials.authorizations.store');
+        // 登录
+        $api->post('authorizations', 'AuthorizationsController@store')
+            ->name('api.authorizations.store');
+        // 刷新token
+        $api->put('authorizations/current', 'AuthorizationsController@update')
+            ->name('api.authorizations.update');
+        // 删除token
+        $api->delete('authorizations/current', 'AuthorizationsController@destroy')
+            ->name('api.authorizations.destroy');
+    });
+
+    $api->group([
+        'middleware' => 'api.throttle',
+        'limit' => config('api.rate_limits.access.limit'),
+        'expires' => config('api.rate_limits.access.expires'),
+    ], function ($api) {
         // 游客可以访问的接口
-        // 返回分类信息
         $api->get('categories', 'CategoriesController@index')
             ->name('api.categories.index');
-        // 访问所有用户的话题
+        // 话题列表
         $api->get('topics', 'TopicsController@index')
             ->name('api.topics.index');
-        // 访问单个用户所有的话题
-        $api->get('users/{user}/topics', 'TopicsController@userIndex')
-            ->name('api.users.topics.index');
         // 话题详情
         $api->get('topics/{topic}', 'TopicsController@show')
             ->name('api.topics.show');
-        // 返回某个话题回复所有列表
+        // 某个用户发布的话题
+        $api->get('users/{user}/topics', 'TopicsController@userIndex')
+            ->name('api.users.topics.index');
+        // 话题回复列表
         $api->get('topics/{topic}/replies', 'RepliesController@index')
             ->name('api.topics.replies.index');
-        // 返回某个人的所有回复列表
+        // 某个用户的回复列表
         $api->get('users/{user}/replies', 'RepliesController@userIndex')
             ->name('api.users.replies.index');
         // 资源推荐
@@ -54,7 +78,6 @@ $api->version('v1', [
         // 活跃用户
         $api->get('actived/users', 'UsersController@activedIndex')
             ->name('api.actived.users.index');
-
 
         // 需要 token 验证的接口
         $api->group(['middleware' => 'api.auth'], function($api) {
@@ -76,6 +99,8 @@ $api->version('v1', [
             // 删除话题
             $api->delete('topics/{topic}', 'TopicsController@destroy')
                 ->name('api.topics.destroy');
+            $api->get('user/topics', 'TopicsController@myIndex')
+                ->name('api.user.topics.index');
             // 发布回复
             $api->post('topics/{topic}/replies', 'RepliesController@store')
                 ->name('api.topics.replies.store');
@@ -94,31 +119,6 @@ $api->version('v1', [
             // 当前登录用户权限
             $api->get('user/permissions', 'PermissionsController@index')
                 ->name('api.user.permissions.index');
-
-
         });
-
-        // 短信验证码
-        $api->post('verificationCodes', 'VerificationCodesController@store')
-            ->name('api.verificationCodes.store');
-        // 用户注册
-        $api->post('users', 'UsersController@store')
-            ->name('api.users.store');
-        // 图片验证码
-        $api->post('captchas','CaptchasController@store')
-            ->name('api.captchas.store');
-        // 第三方登录 目前是微信
-        $api->post('socials/{social_type}/authorizations', 'AuthorizationsController@socialStore')
-            ->name('api.socials.authorizations.store');
-        // 登录
-        $api->post('authorizations', 'AuthorizationsController@store')
-            ->name('api.authorizations.store');
-        // 刷新token
-        $api->put('authorizations/current', 'AuthorizationsController@update')
-            ->name('api.authorizations.update');
-        // 删除token
-        $api->delete('authorizations/current', 'AuthorizationsController@destroy')
-            ->name('api.authorizations.destroy');
-
     });
 });

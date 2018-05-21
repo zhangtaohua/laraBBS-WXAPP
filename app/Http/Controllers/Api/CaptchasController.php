@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 //use App\Http\Controllers\Controller;
 use Gregwar\Captcha\CaptchaBuilder;
 use App\Http\Requests\Api\CaptchaRequest;
+use Illuminate\Support\Str;
+
 
 class CaptchasController extends Controller
 {
@@ -17,7 +19,7 @@ class CaptchasController extends Controller
         // 注意 下面的不好验证的话，去参考官方改为只产生数字的
         $captcha = $captchaBuilder->build();
         $expiredAt = now()->addMinutes(5);
-        \Cache::put($key, ['phone' => $phone, 'code' => strtoupper($captcha->getPhrase())], $expiredAt);
+        \Cache::put($key, ['phone' => $phone, 'code' => Str::lower($captcha->getPhrase())], $expiredAt);
 
         $result = [
             'captcha_key' => $key,
